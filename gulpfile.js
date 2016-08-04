@@ -1,7 +1,10 @@
 // 引入 gulp
 var gulp = require('gulp'),
 	watch = require('gulp-watch'),
-	livereload = require('gulp-livereload'),
+	yargs = require('yargs').argv,//获取gulp命令后传入的参数
+	template = require('gulp-template'), // 模板
+	livereload = require('gulp-livereload'),//与服务器同步刷新
+	fileinclude = require('gulp-file-include'),//引入文件
 	pkg = require('gulp-packages')(gulp, [
 		'autoprefixer', //浏览器前缀
 		'cache', //缓存
@@ -34,6 +37,11 @@ var gulp = require('gulp'),
 		img: 'manifest.img.json',
 		js: 'manifest.js.json'
 	},
+
+	api = require('./url.json'),
+	jsonapi = require('./testurl.json'),
+	iftestUrl = false, // 是否 测试数据 测试数据从json文件中获取
+
 	//根据文件hash来加后缀
 	mkRev = function (stream, manifest) {
 		return stream
@@ -71,8 +79,9 @@ gulp.task('build-sass', function () {
 	return mkRev(gulp.src(pathConfig.src + "**/*.scss", {
 		base: pathConfig.src
 	})
-		.pipe(pkg.sass())
-		.pipe(pkg.cleanCss())
+		.pipe(pkg.sass({
+			outputStyle:'compressed'
+	    }))
 		.pipe(pkg.plumber({
             errorHandler: pkg.notify.onError('Error: <%= error.message %>')
         }))
@@ -110,6 +119,7 @@ gulp.task('build-html', function () {
 	mkRev(gulp.src(pathConfig.src + '**/*.html', {
 		base: pathConfig.src
 	})
+		.pipe( pkg.if( iftestUrl, template( jsonapi ),template(api) ) ) 
 		.pipe(pkg.plumber())
 		.pipe(pkg.htmlmin({
 			collapseWhitespace: true,
@@ -123,6 +133,7 @@ gulp.task('build-html', function () {
 			mkRev(gulp.src(pathConfig.dist + '**/*.html', {
 				base: pathConfig.src
 			})
+				.pipe( pkg.if( iftestUrl, template( jsonapi ),template(api) ) ) 
 				.pipe(pkg.revReplace({
 					manifest: gulp.src(manifest.html)
 				}))
@@ -136,6 +147,7 @@ gulp.task('build-js', function () {
 	return mkRev(gulp.src(pathConfig.src + '**/*.js', {
 		base: pathConfig.src
 	})
+		.pipe( pkg.if( iftestUrl, template( jsonapi ),template(api) ) ) 
 		.pipe(pkg.uglify())
 		.pipe(gulp.dest(pathConfig.dist))
 		.pipe(pkg.rename(function (file) {
