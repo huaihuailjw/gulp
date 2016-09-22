@@ -145,6 +145,6 @@
 
 提交文件到团队仓库
 
-    git push -u origin master //将本地的项目提交到远程仓库中。
+    git push -u origin master //将本地的项目提交到远程仓库中
 
 </code></pre>
