@@ -27,7 +27,7 @@ var gulp = require('gulp'),
 	Q = require('q'),
 	del = require('del'),
 	pathConfig = {
-		dist: 'build/',
+		dist: 'guangfa/',
 		src: 'src/',
 		rev: 'rev'
 	},
